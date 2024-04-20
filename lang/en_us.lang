@@ -9,7 +9,7 @@ help.clear = clear up
 help.build = clear up and build the blog
 help.server = run the HTTP server
 help.server.port = the server port number
-help.new = create a new post
+help.post = create a new post
 help.page = creat a new page
 
 theme.error.not_exist = theme not find

@@ -9,7 +9,7 @@ help.clear = 清理
 help.build = 清理并构建
 help.server = 运行HTTP服务器
 help.server.port = 服务器端口号
-help.new = 创建新文章
+help.post = 创建新文章
 help.page = 创建新页面
 
 theme.error.not_exist = 主题未找到

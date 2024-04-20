@@ -19,8 +19,7 @@ config_default = {
     "output" : "output",
     "blacklist" : [
         ".git",
-    ],
-    "git" : False
+    ]
 }
 
 class ArgumentParser( argparse.ArgumentParser ) :
@@ -36,12 +35,12 @@ if __name__ == "__main__" :
     parser.add_argument( "-i" , "--init" , required = False , action = "store_true" , help = lang.get( "help.init" ) )
     parser.add_argument( "--theme" , required = False , default = "default" , help = lang.get( "help.theme" ) )
     parser.add_argument( "-l" , "--list" , required = False , action = "store_true" , help = lang.get( "help.theme.list" ) )
-    parser.add_argument( "-c" , "--clear" , required = False , action = "store_true" , help = lang.get( "help.clear" ) )
-    parser.add_argument( "-b" , "--build" , required = False , action = "store_true" , help = lang.get( "help.build" ) )
     parser.add_argument( "-s" , "--server" , required = False , action = "store_true" , help = lang.get( "help.server" ) )
     parser.add_argument( "--port" , required = False , default = 7000 , type = int , help = lang.get( "help.server.port" ) )
-    parser.add_argument( "-n" , "--new" , required = False , action = "store_true" , help = lang.get( "help.new" ) )
-    parser.add_argument( "--page" , required = False , action = "store_true" , help = lang.get( "help.page" ) )
+    parser.add_argument( "-c" , "--clear" , required = False , action = "store_true" , help = lang.get( "help.clear" ) )
+    parser.add_argument( "-b" , "--build" , required = False , action = "store_true" , help = lang.get( "help.build" ) )
+    parser.add_argument( "-p" , "--post" , required = False , default = None , type = str , help = lang.get( "help.post" ) )
+    parser.add_argument( "--page" , required = False , default = None , type = str , help = lang.get( "help.page" ) )
     args = parser.parse_args()
     if args.init :
         # load theme
@@ -101,17 +100,25 @@ if __name__ == "__main__" :
         exit()
     output_path = config.get( "output" )
     if not os.path.exists( output_path ) : os.makedirs( output_path )
-    if args.clear or args.build :
-        lib.path.rmtree( output_path , config.get( "blacklist" ) )
-        if not args.build : exit()
-    if args.build :
-        exit()
     if args.server :
         httpd = http.server.HTTPServer( ( "0.0.0.0" , port := args.port ) , http.server.SimpleHTTPRequestHandler )
         print( f"http://0.0.0.0{ f':{ port if port != 80 else '' }' }" )
         os.chdir( output_path )
         try : httpd.serve_forever()
         except KeyboardInterrupt : ...
+    if args.clear or args.build :
+        lib.path.rmtree( output_path , config.get( "blacklist" ) )
+        if not args.build : exit()
+    theme_name = config.get( "theme" )
+    try :
+        theme : types.ModuleType = lib.theme.theme_load( os.path.join( home , "theme" , theme_name ) )
+        theme_class : lib.theme.theme = theme.theme
+    except :
+        print( lang.get( "theme.error.load_failed" ) )
+        exit()
+    theme_class.main()
+    if args.build :
+        theme_class.build()
         exit()
     if args.post :
         exit()

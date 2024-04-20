@@ -1,5 +1,6 @@
 import importlib.util
 import types
+import abc
 import os
 
 __all__ = [ "theme_load" ]
@@ -16,7 +17,28 @@ def theme_load( path : str , name : str | None = None ) -> types.ModuleType :
 class theme :
 
     def __init__( self , path : str | None = None ) -> None :
+        """
+        theme class init
+        """
         self.path : str = os.getcwd() if path is None else path
 
+    @abc.abstractmethod
     def init( self ) -> None :
+        """
+        blog frame init
+        """
+        pass
+
+    @abc.abstractmethod
+    def main( self ) -> None :
+        """
+        the main function of the theme
+        """
+        pass
+
+    @abc.abstractmethod
+    def build( self ) -> None :
+        """
+        the build function of the theme
+        """
         pass

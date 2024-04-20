@@ -41,5 +41,14 @@ class theme( lib.theme.theme ) :
     def main( self ) -> None :
         self.config = self.config_set()
 
+    def build( self ) -> None :
+        pass
+
+    def post( self , path : str , title : str ) -> None :
+        pass
+
+    def page( self , path : str , title : str ) -> None :
+        pass
+
 __version__ = version = "0.0.1"
 description = "the default theme for simplog"

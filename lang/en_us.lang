@@ -23,6 +23,9 @@ init.done = done
 list.list = list of themes:
 list.empty = no themes are available
 
-error.source_not_exist = `source` directory not find, if you not initialization please init first.
-error.load_config = load config failed
-error.output_not_exist = output directory not find, if you not build please build first.
+post.error.exist = the post is already exist
+
+page.error.exist = the page is already exist
+
+cli.error.source_not_exist = `source` directory not find, if you not initialization please init first.
+cli.error.load_config = load config failed

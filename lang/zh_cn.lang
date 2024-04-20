@@ -23,6 +23,9 @@ init.done = 完成
 list.list = 主题列表:
 list.empty = 没有主题可以使用
 
-error.source_not_exist = 没有找到`source`文件夹,如果还未初始化请先初始化.
-error.load_config = 加载配置文件时出错
-error.output_not_exist = 没有找到输出文件夹,如果还构建请先构建.
+post.error.exist = 文章已存在
+
+page.error.exist = 页面已存在
+
+cli.error.source_not_exist = 没有找到`source`文件夹,如果还未初始化请先初始化.
+cli.error.load_config = 加载配置文件时出错

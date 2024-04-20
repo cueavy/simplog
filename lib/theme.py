@@ -31,14 +31,16 @@ class theme :
 
     @abc.abstractmethod
     def main( self ) -> None :
-        """
-        the main function of the theme
-        """
         pass
 
     @abc.abstractmethod
     def build( self ) -> None :
-        """
-        the build function of the theme
-        """
+        pass
+
+    @abc.abstractmethod
+    def post( self , path : str , title : str ) -> None :
+        pass
+
+    @abc.abstractmethod
+    def page( self , path : str , title : str ) -> None :
         pass

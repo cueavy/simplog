@@ -100,13 +100,13 @@ if __name__ == "__main__" :
             print( lang.get( "list.empty" ) )
         exit()
     if not os.path.exists( "source" ) :
-        print( lang.get( "error.source_not_exist" ) )
+        print( lang.get( "cli.error.source_not_exist" ) )
         exit()
     try :
         config = lib.config.parser( os.path.join( "source" , "config" , "config.json" ) )
         config.add_all( config_default )
     except :
-        print( lang.get( "error.load_config" ) )
+        print( lang.get( "cli.error.load_config" ) )
         exit()
     output_path = config.get( "output" )
     if not os.path.exists( output_path ) : os.makedirs( output_path )
@@ -131,10 +131,24 @@ if __name__ == "__main__" :
         theme_class.build()
         exit()
     if args.post :
+        title : str = args.post
         time_create = time.time()
-        os.makedirs( os.path.join( "source" , "post" , *( time.strftime( "%Y|%m-%d" , time.localtime( time_create ) ) ).split( "|" ) ) )
+        path = os.path.join( "source" , "post" , *( time.strftime( "%Y|%m-%d" , time.localtime( time_create ) ) ).split( "|" ) , formatname( title ) )
+        try :
+            lib.path.checkdir( path )
+        except FileExistsError :
+            print( lang.get( "post.error.exist" ) )
+            exit()
+        theme_class.post( path , title )
         exit()
     if args.page :
+        title = args.page
         time_create = time.time()
-        os.makedirs( os.path.join( "source" , "page" , formatname( args.page ) ) )
+        path = os.path.join( "source" , "page" , formatname( title ) )
+        try :
+            os.makedirs( path )
+        except FileExistsError :
+            print( lang.get( "page.error.exist" ) )
+            exit()
+        theme_class.page( path , title )
         exit()

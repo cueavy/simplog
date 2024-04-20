@@ -1,0 +1,23 @@
+parser.name = simplog
+parser.description = a simple blog frame frame
+
+help.help = show this help message and exit
+help.init = init the blog frame
+help.theme = the theme you need when init
+help.theme.list = list all the themes that can be used
+help.clear = clear up
+help.build = clear up and build the blog
+help.server = run the HTTP server
+help.server.port = the server port number
+help.push = build and push the repository to remote
+help.push.commit = push commit
+help.new = create a new post
+help.page = creat a new page
+
+list.list = list of themes:
+list.empty = no themes are available
+
+error.source_not_exist = `source` directory not find, if you not initialization please init first.
+error.output_not_exist = `output` directory not find, if you not build please build first.
+error.theme_not_exist = theme not find
+error.theme_load_failed = failed to load the theme

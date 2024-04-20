@@ -1,0 +1,13 @@
+/*
+
+!lib
+!lang
+!theme
+!blog.py
+!LICENSE
+!README.md
+!.gitignore
+!requirements.txt
+
+*__pycache__
+*.py[cod]

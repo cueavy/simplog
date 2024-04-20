@@ -1,0 +1,23 @@
+parser.name = simplog
+parser.description = 一个简单的博客框架
+
+help.help = 显示此帮助信息并退出
+help.init = 初始化博客框架
+help.theme = 初始化时使用的主题
+help.theme.list = 列出所有可以被使用的主题
+help.clear = 清理
+help.build = 清理并构建
+help.server = 运行HTTP服务器
+help.server.port = 服务器端口号
+help.push = 构建并将本地仓库推送到远程仓库
+help.push.commit = 推送信息
+help.new = 创建新文章
+help.page = 创建新页面
+
+list.list = 主题列表:
+list.empty = 没有主题可以使用
+
+error.source_not_exist = 没有找到`source`目录,如果还未初始化请先初始化.
+error.output_not_exist = 没有找到`output`目录,如果还构建请先构建.
+error.theme_not_exist = 主题未找到
+error.theme_load_failed = 加载主题失败

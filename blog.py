@@ -5,13 +5,15 @@ import shutil
 import typing
 import types
 import http
+import time
+import re
 import os
 
 import lib.config
 import lib.theme
 import lib.path
 
-__all__ = [ "ArgumentParser" ]
+__all__ = [ "ArgumentParser" , "formatname" ]
 
 home = os.path.dirname( __file__ )
 config_default = {
@@ -28,6 +30,14 @@ class ArgumentParser( argparse.ArgumentParser ) :
         super().__init__( lang.get( prog ) , description = lang.get( description ) , add_help = False , **kwargs )
         self.add_argument( "-h" , "--help" , action = "help" , help = lang.get( help ) )
         self.lang = lang
+
+def formatname( name : str ) -> str :
+    name = name.strip()
+    if name and name[ 0 ] == "." : name = name[ 1 : ]
+    if name and name[ -1 ] == "." : name = name[ : -1 ]
+    name = name.replace( " " , "-" )
+    name = re.sub( """[<>:"/\\|?*]""" , "_" ,  name )
+    return name[ : 255 ]
 
 if __name__ == "__main__" :
     lang = langful.langful( os.path.join( home , "lang" ) )
@@ -112,7 +122,7 @@ if __name__ == "__main__" :
     theme_name = config.get( "theme" )
     try :
         theme : types.ModuleType = lib.theme.theme_load( os.path.join( home , "theme" , theme_name ) )
-        theme_class : lib.theme.theme = theme.theme
+        theme_class : lib.theme.theme = theme.theme()
     except :
         print( lang.get( "theme.error.load_failed" ) )
         exit()
@@ -121,6 +131,10 @@ if __name__ == "__main__" :
         theme_class.build()
         exit()
     if args.post :
+        time_create = time.time()
+        os.makedirs( os.path.join( "source" , "post" , *( time.strftime( "%Y|%m-%d" , time.localtime( time_create ) ) ).split( "|" ) ) )
         exit()
     if args.page :
+        time_create = time.time()
+        os.makedirs( os.path.join( "source" , "page" , formatname( args.page ) ) )
         exit()

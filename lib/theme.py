@@ -10,4 +10,13 @@ def theme_load( path : str , name : str | None = None ) -> types.ModuleType :
     if spec is None or spec.loader is None : raise ImportError
     module = importlib.util.module_from_spec( spec )
     spec.loader.exec_module( module )
+    if not hasattr( module , "theme" ) or not isinstance( module.theme() , theme ) : raise ImportError
     return module
+
+class theme :
+
+    def __init__( self , path : str | None = None ) -> None :
+        self.path : str = os.getcwd() if path is None else path
+
+    def init( self ) -> None :
+        pass

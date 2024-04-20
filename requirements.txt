@@ -1,5 +1,4 @@
 beautifulsoup4
-gitpython
 pygments
 mistune
 langful

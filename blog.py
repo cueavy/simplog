@@ -1,16 +1,27 @@
 import http.server
 import argparse
 import langful
+import shutil
 import typing
 import types
 import http
 import os
 
+import lib.config
 import lib.theme
+import lib.path
 
 __all__ = [ "ArgumentParser" ]
 
 home = os.path.dirname( __file__ )
+config_default = {
+    "theme" : "default",
+    "output" : "output",
+    "blacklist" : [
+        ".git",
+    ],
+    "git" : False
+}
 
 class ArgumentParser( argparse.ArgumentParser ) :
 
@@ -29,31 +40,43 @@ if __name__ == "__main__" :
     parser.add_argument( "-b" , "--build" , required = False , action = "store_true" , help = lang.get( "help.build" ) )
     parser.add_argument( "-s" , "--server" , required = False , action = "store_true" , help = lang.get( "help.server" ) )
     parser.add_argument( "--port" , required = False , default = 7000 , type = int , help = lang.get( "help.server.port" ) )
-    parser.add_argument( "-p" , "--push" , required = False , action = "store_true" , help = lang.get( "help.push" ) )
-    parser.add_argument( "--commit" , required = False , default = None , type = str , help = lang.get( "help.push.commit" ) )
     parser.add_argument( "-n" , "--new" , required = False , action = "store_true" , help = lang.get( "help.new" ) )
     parser.add_argument( "--page" , required = False , action = "store_true" , help = lang.get( "help.page" ) )
     args = parser.parse_args()
-    if args.server :
-        if not os.path.exists( "output" ) :
-            print( lang.get( "error.output_not_exist" ) )
-            exit()
-        httpd = http.server.HTTPServer( ( "0.0.0.0" , port := args.port ) , http.server.SimpleHTTPRequestHandler )
-        print( f"http://0.0.0.0{ f':{ port if port != 80 else '' }' }" )
-        os.chdir( "output" )
-        try : httpd.serve_forever()
-        except KeyboardInterrupt : ...
-        exit()
     if args.init :
         # load theme
-        if not os.path.isdir( path := os.path.join( home , "theme" , args.theme ) ) :
-            print( lang.get( "error.theme_not_exist" ) )
+        theme_name = args.theme
+        if not os.path.isdir( path := os.path.join( home , "theme" , theme_name ) ) :
+            print( lang.get( "theme.error.not_exist" ) )
             exit()
         try :
             theme = lib.theme.theme_load( path )
         except ImportError :
-            print( lang.get( "error.theme_load_failed" ) )
+            print( lang.get( "theme.error.load_failed" ) )
             exit()
+        print( lang.replace( "init.theme" , { "name" : theme_name } ) )
+        # create and copy files
+        if os.path.isdir( "source" ) :
+            if len( os.listdir( "source" ) ) :
+                print( lang.get( "init.error.source_exist" ) )
+                exit()
+            else : os.rmdir( "source" )
+        theme_path = os.path.dirname( str( theme.__file__ ) )
+        path = os.path.join( theme_path , "source" )
+        if os.path.isdir( path ) :
+            shutil.copytree( path , "source" )
+        else :
+            print( lang.get( "init.warning.theme_no_source_dir" ) )
+            os.mkdir( "source" )
+        [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in [ "asset" , "config" , "post" , "page" , "template" ] ) if not os.path.exists( path ) ]
+        # config
+        with lib.config.parser( os.path.join( "source" , "config" , "config.json" ) , check_exist = False ) as config :
+            config.add_all( config_default )
+            config.set( "theme" , theme_name )
+        # theme init
+        theme_main : lib.theme.theme = theme.theme()
+        theme_main.init()
+        print( lang.get( "init.done" ) )
         exit()
     if args.list :
         themes : dict[ str , types.ModuleType ] = {}
@@ -70,4 +93,27 @@ if __name__ == "__main__" :
     if not os.path.exists( "source" ) :
         print( lang.get( "error.source_not_exist" ) )
         exit()
-    if not os.path.exists( "output" ) : os.mkdir( "output" )
+    try :
+        config = lib.config.parser( os.path.join( "source" , "config" , "config.json" ) )
+        config.add_all( config_default )
+    except :
+        print( lang.get( "error.load_config" ) )
+        exit()
+    output_path = config.get( "output" )
+    if not os.path.exists( output_path ) : os.makedirs( output_path )
+    if args.clear or args.build :
+        lib.path.rmtree( output_path , config.get( "blacklist" ) )
+        if not args.build : exit()
+    if args.build :
+        exit()
+    if args.server :
+        httpd = http.server.HTTPServer( ( "0.0.0.0" , port := args.port ) , http.server.SimpleHTTPRequestHandler )
+        print( f"http://0.0.0.0{ f':{ port if port != 80 else '' }' }" )
+        os.chdir( output_path )
+        try : httpd.serve_forever()
+        except KeyboardInterrupt : ...
+        exit()
+    if args.post :
+        exit()
+    if args.page :
+        exit()

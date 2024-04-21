@@ -34,7 +34,7 @@ class theme :
         pass
 
     @abc.abstractmethod
-    def build( self ) -> None :
+    def build( self , output : str ) -> None :
         pass
 
     @abc.abstractmethod

@@ -73,7 +73,7 @@ if __name__ == "__main__" :
         else :
             print( lang.get( "init.warning.theme_no_source_dir" ) )
             os.mkdir( "source" )
-        [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in [ "asset" , "config" , "post" , "page" , "template" ] ) if not os.path.exists( path ) ]
+        [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in [ "asset" , "config" , "template" ] ) if not os.path.exists( path ) ]
         # config
         with lib.config.parser( os.path.join( "source" , "config" , "config.json" ) , check_exist = False ) as config :
             config.add_all( config_default )
@@ -120,10 +120,11 @@ if __name__ == "__main__" :
     # server
     if args.server :
         httpd = http.server.HTTPServer( ( "0.0.0.0" , port := args.port ) , http.server.SimpleHTTPRequestHandler )
-        print( f"http://0.0.0.0{ f':{ port if port != 80 else '' }' }" )
+        print( f"http://localhost{ f':{ port if port != 80 else '' }' }" )
         os.chdir( output_path )
         try : httpd.serve_forever()
-        except KeyboardInterrupt : ...
+        except KeyboardInterrupt : pass
+        exit()
     # clear
     if args.clear or args.build :
         lib.path.rmtree( output_path , config.get( "blacklist" ) )
@@ -140,7 +141,8 @@ if __name__ == "__main__" :
     theme_class.main()
     # build
     if args.build :
-        theme_class.build()
+        theme_class.build( output_path )
+        lib.path.copytree( os.path.join( "source" , "asset" ) , output_path )
         exit()
     # post
     if args.post :

@@ -1,0 +1,6 @@
+build.info.start = 开始构建
+build.info.pages = 找到{all}个页面或文章需要转换,其中有{page}个页面和{post}个文章
+build.error.failed.conversion = 转换时出错,继续...
+build.info.failed = 共有{page}个页面和{post}个文章转换失败
+build.info.no_failed = 所有页面或文章都转换成功
+build.info.done = 构建完成

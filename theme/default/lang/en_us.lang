@@ -1,0 +1,6 @@
+build.info.start = start to build
+build.info.pages = find {all} pages or posts need to conversion, {page} pages and {post} posts
+build.error.failed.conversion = an error occurred during conversion, continue...
+build.info.failed = failed to conversion {page} pages and {post} posts
+build.info.no_failed = all the pages or posts are successful to conversion
+build.info.done = finish to build

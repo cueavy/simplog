@@ -1,5 +1,5 @@
 parser.name = simplog
-parser.description = a simple blog frame frame
+parser.description = a simple blog frame
 
 help.help = show this help message and exit
 help.init = init the blog frame

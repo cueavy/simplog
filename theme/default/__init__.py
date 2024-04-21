@@ -44,7 +44,7 @@ class theme( lib.theme.theme ) :
     def set_config( self ) -> lib.config.parser :
         with lib.config.parser( os.path.join( self.path_source , "config" , "theme.json" ) , check_exist = False ) as config :
             config.add( "giscus" , {
-                "src" : "https://cdn.jsdelivr.net/npm/giscus/dist/giscus.mjs"
+                "src" : "https://giscus.app/client.js"
             } )
             config.add( "mistune_plugins" , [
                 "math",

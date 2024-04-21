@@ -1,4 +1,5 @@
 import http.server
+import subprocess
 import argparse
 import langful
 import shutil
@@ -6,6 +7,7 @@ import typing
 import types
 import http
 import time
+import sys
 import re
 import os
 
@@ -52,6 +54,7 @@ if __name__ == "__main__" :
     parser.add_argument( "-p" , "--post" , required = False , default = None , type = str , help = lang.get( "help.post" ) )
     parser.add_argument( "--page" , required = False , default = None , type = str , help = lang.get( "help.page" ) )
     args = parser.parse_args()
+    # init
     if args.init :
         # load theme
         theme_name = args.theme
@@ -82,11 +85,17 @@ if __name__ == "__main__" :
         with lib.config.parser( os.path.join( "source" , "config" , "config.json" ) , check_exist = False ) as config :
             config.add_all( config_default )
             config.set( "theme" , theme_name )
+        # install requirement
+        if hasattr( theme , "requirement" ) :
+            print( lang.get( "init.requirement.start" ) )
+            subprocess.check_call( [ sys.executable , "-m" , "pip" , "install" , "-r" , theme.requirement ] )
+            print( lang.get( "init.requirement.done" ) )
         # theme init
         theme_main : lib.theme.theme = theme.theme()
         theme_main.init()
         print( lang.get( "init.done" ) )
         exit()
+    # list
     if args.list :
         themes : dict[ str , types.ModuleType ] = {}
         for name in os.listdir( os.path.join( home , "theme" ) ) :
@@ -99,6 +108,7 @@ if __name__ == "__main__" :
         else :
             print( lang.get( "list.empty" ) )
         exit()
+    # load config
     if not os.path.exists( "source" ) :
         print( lang.get( "cli.error.source_not_exist" ) )
         exit()
@@ -110,15 +120,18 @@ if __name__ == "__main__" :
         exit()
     output_path = config.get( "output" )
     if not os.path.exists( output_path ) : os.makedirs( output_path )
+    # server
     if args.server :
         httpd = http.server.HTTPServer( ( "0.0.0.0" , port := args.port ) , http.server.SimpleHTTPRequestHandler )
         print( f"http://0.0.0.0{ f':{ port if port != 80 else '' }' }" )
         os.chdir( output_path )
         try : httpd.serve_forever()
         except KeyboardInterrupt : ...
+    # clear
     if args.clear or args.build :
         lib.path.rmtree( output_path , config.get( "blacklist" ) )
         if not args.build : exit()
+    # load theme
     theme_name = config.get( "theme" )
     try :
         theme : types.ModuleType = lib.theme.theme_load( os.path.join( home , "theme" , theme_name ) )
@@ -127,9 +140,11 @@ if __name__ == "__main__" :
         print( lang.get( "theme.error.load_failed" ) )
         exit()
     theme_class.main()
+    # build
     if args.build :
         theme_class.build()
         exit()
+    # post
     if args.post :
         title : str = args.post
         time_create = time.time()
@@ -141,6 +156,7 @@ if __name__ == "__main__" :
             exit()
         theme_class.post( path , title )
         exit()
+    # page
     if args.page :
         title = args.page
         time_create = time.time()

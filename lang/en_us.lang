@@ -18,7 +18,9 @@ theme.error.load_failed = failed to load the theme
 init.theme = start to use `{name}` theme to init...
 init.error.source_exist = `source` directory already exist and not empty
 init.warning.theme_no_source_dir = warning: this theme not have `source` directory, it's usually in need, if this theme says don't need this file, just ignore this warning, the initialization will continue...
-init.done = done
+init.requirement.start = find requirements, start to installing packages...
+init.requirement.done = packages installing completed
+init.done = initialization successful
 
 list.list = list of themes:
 list.empty = no themes are available

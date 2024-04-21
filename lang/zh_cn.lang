@@ -18,7 +18,9 @@ theme.error.load_failed = 加载主题失败
 init.theme = 开始使用`{name}`主题进行初始化...
 init.error.source_exist = `source`文件夹已经存在且不为空
 init.warning.theme_no_source_dir = 警告: 主题内并不存在`source`文件夹,这个文件夹一般是需要的,若该主题已说明此主题不需要此文件夹,请忽略此警告,初始化将会继续...
-init.done = 完成
+init.requirement.start = 发现依赖文件,开始安装包...
+init.requirement.done = 包安装已完成
+init.done = 初始化成功
 
 list.list = 主题列表:
 list.empty = 没有主题可以使用

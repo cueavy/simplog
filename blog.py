@@ -99,7 +99,8 @@ if __name__ == "__main__" :
                 continue
         if len( themes ) :
             print( lang.get( "list.list" ) )
-            [ print( " " * 2 , name , f" - ({ theme.version })" if hasattr( theme , "version" ) else "" , f" : { theme.description }" if hasattr( theme , "description" ) else "" , sep = "" ) for name , theme in themes.items() ]
+            get_attr : typing.Callable[ [ types.ModuleType , str , str , str ] , str ] = lambda theme , text , attr , default = "" : text.replace( "{}" , getattr( theme , attr ) ) if hasattr( theme , attr ) else default
+            [ print( " " * 2 , get_attr( theme , f"{{}} [{ name }]" , "name" , name ) , get_attr( theme , " - ({})" , "version" ) , get_attr( theme , " : {}" , "description" ) , sep = "" ) for name , theme in themes.items() ]
         else :
             print( lang.get( "list.empty" ) )
         exit()

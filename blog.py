@@ -1,5 +1,6 @@
 import http.server
 import subprocess
+import traceback
 import argparse
 import langful
 import shutil
@@ -8,14 +9,13 @@ import types
 import http
 import time
 import sys
-import re
 import os
 
 import lib.config
 import lib.theme
 import lib.path
 
-__all__ = [ "ArgumentParser" , "formatname" ]
+__all__ = [ "ArgumentParser" ]
 
 home = os.path.dirname( __file__ )
 config_default = {
@@ -32,14 +32,6 @@ class ArgumentParser( argparse.ArgumentParser ) :
         super().__init__( lang.get( prog ) , description = lang.get( description ) , add_help = False , **kwargs )
         self.add_argument( "-h" , "--help" , action = "help" , help = lang.get( help ) )
         self.lang = lang
-
-def formatname( name : str ) -> str :
-    name = name.strip()
-    if name and name[ 0 ] == "." : name = name[ 1 : ]
-    if name and name[ -1 ] == "." : name = name[ : -1 ]
-    name = name.replace( " " , "-" )
-    name = re.sub( """[<>:"/\\|?*]""" , "_" ,  name )
-    return name[ : 255 ]
 
 if __name__ == "__main__" :
     lang = langful.langful( os.path.join( home , "lang" ) )
@@ -64,6 +56,7 @@ if __name__ == "__main__" :
         try :
             theme = lib.theme.theme_load( path )
         except ImportError :
+            traceback.print_exc()
             print( lang.get( "theme.error.load_failed" ) )
             exit()
         print( lang.replace( "init.theme" , { "name" : theme_name } ) )
@@ -100,11 +93,13 @@ if __name__ == "__main__" :
         themes : dict[ str , types.ModuleType ] = {}
         for name in os.listdir( os.path.join( home , "theme" ) ) :
             try : themes[ name ] = lib.theme.theme_load( os.path.join( home , "theme" , name ) )
-            except : continue
+            except :
+                traceback.print_exc()
+                print( lang.replace( "list.load_error" , { "name" : name } ) )
+                continue
         if len( themes ) :
             print( lang.get( "list.list" ) )
-            for name , theme in themes.items() :
-                print( " " * 2 , name , f" - ({ theme.version })" if hasattr( theme , "version" ) else "" , f" : { theme.description }" if hasattr( theme , "description" ) else "" , sep = "" )
+            [ print( " " * 2 , name , f" - ({ theme.version })" if hasattr( theme , "version" ) else "" , f" : { theme.description }" if hasattr( theme , "description" ) else "" , sep = "" ) for name , theme in themes.items() ]
         else :
             print( lang.get( "list.empty" ) )
         exit()
@@ -116,6 +111,7 @@ if __name__ == "__main__" :
         config = lib.config.parser( os.path.join( "source" , "config" , "config.json" ) )
         config.add_all( config_default )
     except :
+        traceback.print_exc()
         print( lang.get( "cli.error.load_config" ) )
         exit()
     output_path = config.get( "output" )
@@ -137,6 +133,7 @@ if __name__ == "__main__" :
         theme : types.ModuleType = lib.theme.theme_load( os.path.join( home , "theme" , theme_name ) )
         theme_class : lib.theme.theme = theme.theme()
     except :
+        traceback.print_exc()
         print( lang.get( "theme.error.load_failed" ) )
         exit()
     theme_class.main()
@@ -148,7 +145,7 @@ if __name__ == "__main__" :
     if args.post :
         title : str = args.post
         time_create = time.time()
-        path = os.path.join( "source" , "post" , *( time.strftime( "%Y|%m-%d" , time.localtime( time_create ) ) ).split( "|" ) , formatname( title ) )
+        path = os.path.join( "source" , "post" , *( time.strftime( "%Y|%m-%d" , time.localtime( time_create ) ) ).split( "|" ) , lib.path.formatname( title ) )
         try :
             lib.path.checkdir( path )
         except FileExistsError :
@@ -160,7 +157,7 @@ if __name__ == "__main__" :
     if args.page :
         title = args.page
         time_create = time.time()
-        path = os.path.join( "source" , "page" , formatname( title ) )
+        path = os.path.join( "source" , "page" , lib.path.formatname( title ) )
         try :
             os.makedirs( path )
         except FileExistsError :

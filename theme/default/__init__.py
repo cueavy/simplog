@@ -5,12 +5,14 @@ the default theme for simplog
 import mistune.plugins
 import langful
 import mistune
+import time
 import sys
 import os
 
 import lib.config
 import lib.theme
 import lib.path
+import lib.time
 
 sys.path.insert( 0 , os.path.dirname( __file__ ) )
 
@@ -55,25 +57,39 @@ class theme( lib.theme.theme ) :
         return config
 
     def set_config_info( self , path : str ) -> lib.config.parser :
+        seconds = time.time()
         with lib.config.parser( os.path.join( path , "info.json" ) , False ) as config :
-            pass
+            config.add( "id" , lib.time.to_hex( seconds ) )
+            config.add( "time" , int( seconds ) )
+            config.add( "title" , None )
+            config.add( "description" , None )
+            config.add( "tags" , [] )
+            config.add( "commint" , True )
         return config
 
     def set_config_page( self , path : str ) -> lib.config.parser :
         with lib.config.parser( os.path.join( path , "page.json" ) , False ) as config :
-            pass
+            config.add( "to" , "page.html" )
+            config.add( "template" , "post" )
         return config
+
+    def to_html( self , text : str ) -> str :
+        return str( self.markdown( text ) )
 
     def build( self ) -> None :
         pass
 
     def post( self , path : str , title : str ) -> None :
         lib.path.checkfile( os.path.join( path , "index.md" ) )
+        with self.set_config_info( path ) as info :
+            info.set( "title" , title )
 
     def page( self , path : str , title : str ) -> None :
         lib.path.checkfile( os.path.join( path , title + ".md" ) )
-        self.set_config_info( path )
-        self.set_config_page( path )
+        with  self.set_config_info( path ) as info :
+            info.set( "title" , title )
+        with self.set_config_page( path ) as page :
+            page.set( "to" , os.path.join( "page" , info.get( "id" ) + ".html" ) )
 
 __version__ = version = "0.0.1"
 description = "the default theme for simplog"

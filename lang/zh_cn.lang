@@ -22,6 +22,7 @@ init.requirement.start = 发现依赖文件,开始安装包...
 init.requirement.done = 包安装已完成
 init.done = 初始化成功
 
+list.load_error = 加载`{name}`主题失败
 list.list = 主题列表:
 list.empty = 没有主题可以使用
 

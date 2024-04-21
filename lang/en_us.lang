@@ -22,6 +22,7 @@ init.requirement.start = find requirements, start to installing packages...
 init.requirement.done = packages installing completed
 init.done = initialization successful
 
+list.load_error = failed to load the theme `{name}`
 list.list = list of themes:
 list.empty = no themes are available
 

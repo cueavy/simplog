@@ -1,5 +1,6 @@
 import http.server
 import subprocess
+import threading
 import traceback
 import argparse
 import langful
@@ -119,11 +120,14 @@ if __name__ == "__main__" :
     if not os.path.exists( output_path ) : os.makedirs( output_path )
     # server
     if args.server :
-        httpd = http.server.HTTPServer( ( "0.0.0.0" , port := args.port ) , http.server.SimpleHTTPRequestHandler )
-        print( f"http://localhost{ f':{ port if port != 80 else '' }' }" )
-        os.chdir( output_path )
-        try : httpd.serve_forever()
-        except KeyboardInterrupt : pass
+        with http.server.HTTPServer( ( "0.0.0.0" , port := args.port ) , http.server.SimpleHTTPRequestHandler ) as httpd :
+            os.chdir( output_path )
+            print( f"http://localhost{ f':{ port if port != 80 else '' }' }" )
+            thread = threading.Thread( target = lambda : httpd.serve_forever() , daemon = True )
+            thread.start()
+            try : 
+                while thread.is_alive() : thread.join( 0.1 )
+            except KeyboardInterrupt : pass
         exit()
     # clear
     if args.clear or args.build :

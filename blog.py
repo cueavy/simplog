@@ -19,13 +19,13 @@ import lib.path
 __all__ = [ "ArgumentParser" ]
 
 home = os.path.dirname( __file__ )
-config_default = {
-    "theme" : "default",
-    "output" : "output",
-    "blacklist" : [
-        ".git",
-    ]
-}
+
+def load_config( check_exist : bool = True ) -> lib.config.parser :
+    with lib.config.parser( os.path.join( "source" , "config" , "config.json" ) , check_exist ) as config :
+        config.add( "theme" , "default" )
+        config.add( "output" , "output" )
+        config.add( "blacklist" , [ ".git" ] )
+    return config
 
 class ArgumentParser( argparse.ArgumentParser ) :
 
@@ -82,9 +82,7 @@ if __name__ == "__main__" :
             os.mkdir( "source" )
         [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in [ "asset" , "config" , "template" ] ) if not os.path.exists( path ) ]
         # config
-        with lib.config.parser( os.path.join( "source" , "config" , "config.json" ) , check_exist = False ) as config :
-            config.add_all( config_default )
-            config.set( "theme" , theme_name )
+        with load_config( False ) as config : config.set( "theme" , theme_name )
         # install requirement
         if hasattr( theme , "requirement" ) :
             print( lang.get( "init.requirement.start" ) )
@@ -117,8 +115,7 @@ if __name__ == "__main__" :
         print( lang.get( "cli.error.source_not_exist" ) )
         exit()
     try :
-        config = lib.config.parser( os.path.join( "source" , "config" , "config.json" ) )
-        config.add_all( config_default )
+        config = load_config()
     except :
         traceback.print_exc()
         print( lang.get( "cli.error.load_config" ) )

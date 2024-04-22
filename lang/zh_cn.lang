@@ -3,6 +3,7 @@ parser.description = 一个简单的博客框架
 
 help.help = 显示此帮助信息并退出
 help.init = 初始化博客框架
+help.force = 强制初始化
 help.theme = 初始化时使用的主题
 help.theme.list = 列出所有可以被使用的主题
 help.clear = 清理
@@ -16,6 +17,7 @@ theme.error.not_exist = 主题未找到
 theme.error.load_failed = 加载主题失败
 
 init.theme = 开始使用`{name}`主题进行初始化...
+init.info.force = `source`文件夹已经存在且不为空,强制继续...
 init.error.source_exist = `source`文件夹已经存在且不为空
 init.warning.theme_no_source_dir = 警告: 主题内并不存在`source`文件夹,这个文件夹一般是需要的,若该主题已说明此主题不需要此文件夹,请忽略此警告,初始化将会继续...
 init.requirement.start = 发现依赖文件,开始安装包...

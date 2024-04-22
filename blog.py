@@ -38,6 +38,7 @@ if __name__ == "__main__" :
     lang = langful.langful( os.path.join( home , "lang" ) )
     parser = ArgumentParser( "parser.name", "parser.description" , "help.help" , lang )
     parser.add_argument( "-i" , "--init" , required = False , action = "store_true" , help = lang.get( "help.init" ) )
+    parser.add_argument( "-f" , "--force" , required = False , action = "store_true" , help = lang.get( "help.force" ) )
     parser.add_argument( "--theme" , required = False , default = "default" , help = lang.get( "help.theme" ) )
     parser.add_argument( "-l" , "--list" , required = False , action = "store_true" , help = lang.get( "help.theme.list" ) )
     parser.add_argument( "-s" , "--server" , required = False , action = "store_true" , help = lang.get( "help.server" ) )
@@ -51,6 +52,7 @@ if __name__ == "__main__" :
     if args.init :
         # load theme
         theme_name = args.theme
+        force = args.force
         if not os.path.isdir( path := os.path.join( home , "theme" , theme_name ) ) :
             print( lang.get( "theme.error.not_exist" ) )
             exit()
@@ -64,13 +66,17 @@ if __name__ == "__main__" :
         # create and copy files
         if os.path.isdir( "source" ) :
             if len( os.listdir( "source" ) ) :
-                print( lang.get( "init.error.source_exist" ) )
-                exit()
-            else : os.rmdir( "source" )
+                if force :
+                    print( lang.get( "init.info.force" ) )
+                else :
+                    print( lang.get( "init.error.source_exist" ) )
+                    exit()
+            else :
+                os.rmdir( "source" )
         theme_path = os.path.dirname( str( theme.__file__ ) )
         path = os.path.join( theme_path , "source" )
         if os.path.isdir( path ) :
-            shutil.copytree( path , "source" )
+            shutil.copytree( path , "source" , dirs_exist_ok = True if force else False )
         else :
             print( lang.get( "init.warning.theme_no_source_dir" ) )
             os.mkdir( "source" )
@@ -93,7 +99,8 @@ if __name__ == "__main__" :
     if args.list :
         themes : dict[ str , types.ModuleType ] = {}
         for name in os.listdir( os.path.join( home , "theme" ) ) :
-            try : themes[ name ] = lib.theme.theme_load( os.path.join( home , "theme" , name ) )
+            try : 
+                themes[ name ] = lib.theme.theme_load( os.path.join( home , "theme" , name ) )
             except :
                 traceback.print_exc()
                 print( lang.replace( "list.load_error" , { "name" : name } ) )
@@ -127,7 +134,8 @@ if __name__ == "__main__" :
             thread.start()
             try : 
                 while thread.is_alive() : thread.join( 0.1 )
-            except KeyboardInterrupt : pass
+            except KeyboardInterrupt :
+                pass
         exit()
     # clear
     if args.clear or args.build :

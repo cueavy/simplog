@@ -31,7 +31,7 @@ body{
     flex-direction: column;
     border-color: gray;
     border-style: solid;
-    border-radius: 16px;
+    border-radius: 8px;
     border-width: 1px;
     overflow: auto;
     padding: 16px;

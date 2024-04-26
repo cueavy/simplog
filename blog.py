@@ -80,7 +80,7 @@ if __name__ == "__main__" :
         else :
             print( lang.get( "init.warning.theme_no_source_dir" ) )
             os.mkdir( "source" )
-        [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in [ "asset" , "config" , "template" ] ) if not os.path.exists( path ) ]
+        [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in [ "asset" , "config" , "post" , "page" , "template" ] ) if not os.path.exists( path ) ]
         # config
         with load_config( False ) as config : config.set( "theme" , theme_name )
         # install requirement

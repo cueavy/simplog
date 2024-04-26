@@ -34,7 +34,6 @@ class theme( lib.theme.theme ) :
 
     def init( self ) -> None :
         self.set_config()
-        [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in [ "post" , "page" ] ) if not os.path.exists( path ) ]
 
     def main( self ) -> None :
         self.lang = langful.langful( os.path.join( os.path.dirname( __file__ ) , "lang" ) )
@@ -61,10 +60,9 @@ class theme( lib.theme.theme ) :
         return config
 
     def set_config_info( self , path : str , check_exist : bool = False ) -> lib.config.parser :
-        seconds = time.time()
         with lib.config.parser( os.path.join( path , "info.json" ) , check_exist ) as config :
-            config.add( "id" , lib.time.to_hex( seconds ) )
-            config.add( "time" , int( seconds ) )
+            config.add( "id" , None )
+            config.add( "time" , None )
             config.add( "title" , None )
             config.add( "description" , None )
             config.add( "tags" , [] )
@@ -149,8 +147,10 @@ class theme( lib.theme.theme ) :
         print( self.lang.get( "build.info.done" ) )
 
     def post( self , path : str , title : str ) -> None :
+        seconds = time.time()
         lib.path.checkfile( os.path.join( path , "index.md" ) )
         with self.set_config_info( path ) as info :
+            info.set( "id" , lib.time.to_hex( seconds ) )
             info.set( "title" , title )
 
     def page( self , path : str , title : str ) -> None :

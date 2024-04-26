@@ -73,14 +73,9 @@ if __name__ == "__main__" :
                     exit()
             else :
                 os.rmdir( "source" )
-        theme_path = os.path.dirname( str( theme.__file__ ) )
-        path = os.path.join( theme_path , "source" )
-        if os.path.isdir( path ) :
-            shutil.copytree( path , "source" , dirs_exist_ok = True if force else False )
-        else :
-            print( lang.get( "init.warning.theme_no_source_dir" ) )
-            os.mkdir( "source" )
-        [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in [ "asset" , "config" , "post" , "page" , "template" ] ) if not os.path.exists( path ) ]
+        if os.path.isdir( path := os.path.join( os.path.dirname( str( theme.__file__ ) ) , "source" ) ) : shutil.copytree( path , "source" , dirs_exist_ok = True if force else False )
+        else : print( lang.get( "init.warning.theme_no_source_dir" ) )
+        [ os.makedirs( path ) for path in ( os.path.join( "source" , path ) for path in [ "asset" , "config" , "post" , "page" , "template" ] ) if not os.path.exists( path ) ]
         # config
         with load_config( False ) as config : config.set( "theme" , theme_name )
         # install requirement

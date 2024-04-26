@@ -15,7 +15,7 @@ document.addEventListener( "DOMContentLoaded" , function(){
         heading.innerHTML += `<a href="#${heading.id}"><i class="fa-solid fa-link fa-fw"></i></a>`;
     };
     // 代码块复制事件
-    document.addEventListener("click", function(event){
+    document.addEventListener("click", function( event ){
         if ( event.target.classList.contains( "copy-button" ) ){
             var id = event.target.dataset.clipboardTarget;
             var element = document.querySelector( id );

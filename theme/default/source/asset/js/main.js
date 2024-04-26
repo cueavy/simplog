@@ -3,8 +3,7 @@ document.addEventListener( "DOMContentLoaded" , function(){
     // 添加锚链接
     var headings = document.querySelectorAll(".heading");
     var heading_names = new Array();
-    var len = headings.length;
-    for ( var i = 0 ; i < len ; i++ ){
+    for ( var i = 0 ; i < headings.length ; i++ ){
         var heading = headings.item( i );
         heading.id = heading.innerText;
         if ( heading.id in heading_names ){
@@ -15,7 +14,6 @@ document.addEventListener( "DOMContentLoaded" , function(){
         }
         heading.innerHTML += `<a href="#${heading.id}"><i class="fa-solid fa-link fa-fw"></i></a>`;
     };
-    console.log(heading_names);
     // 代码块复制事件
     document.addEventListener("click", function(event){
         if ( event.target.classList.contains( "copy-button" ) ){
@@ -43,8 +41,7 @@ document.addEventListener( "DOMContentLoaded" , function(){
     });
     // 代码块工具栏
     var divs = document.getElementsByClassName("highlight");
-    var len = divs.length;
-    for ( var i = 0 ; i < len ; i++ ){
+    for ( var i = 0 ; i < divs.length ; i++ ){
         var div = divs.item( i );
         var target = "copy-" + i;
         div.children.item( 0 ).id = target;

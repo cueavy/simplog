@@ -1,5 +1,8 @@
 // 页面元素加载完时再执行
 document.addEventListener( "DOMContentLoaded" , function(){
+    // 设置按钮
+    var div = document.getElementById( "post" );
+    div.insertAdjacentHTML( "afterbegin" , "<button id=\"menu-button\"><i class=\"fa-solid fa-bars\"></i></i></button>" )
     // 添加锚链接
     var headings = document.querySelectorAll(".heading");
     var heading_names = new Array();
@@ -12,7 +15,7 @@ document.addEventListener( "DOMContentLoaded" , function(){
         } else {
             heading_names[ heading.id ] = 0;
         }
-        heading.innerHTML += `<a href="#${heading.id}"><i class="fa-solid fa-link fa-fw"></i></a>`;
+        heading.insertAdjacentHTML( "beforeend" , `<a href="#${heading.id}" title="${heading.id}"><i class="fa-solid fa-link fa-fw"></i></a>` );
     };
     // 代码块复制事件
     document.addEventListener("click", function( event ){

@@ -18,6 +18,15 @@ a:hover{
     font-size: 14px;
     color: gray;
 }
+#post #menu-button{
+    background-color: transparent;
+    position: absolute;
+    border-style: none;
+    height: 24px;
+    width: 24px;
+    right: 0px;
+    top: 0px;
+}
 #post .heading{
     margin-bottom: 6px;
     margin-top: 6px;

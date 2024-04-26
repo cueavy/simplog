@@ -2,12 +2,20 @@
 document.addEventListener( "DOMContentLoaded" , function(){
     // 添加锚链接
     var headings = document.querySelectorAll(".heading");
+    var heading_names = new Array();
     var len = headings.length;
     for ( var i = 0 ; i < len ; i++ ){
         var heading = headings.item( i );
-        heading.id = `heading-${i}`;
-        heading.innerHTML += `<a href="#heading-${i}"><i class="fa-solid fa-link fa-fw"></i></a>`;
+        heading.id = heading.innerText;
+        if ( heading.id in heading_names ){
+            heading_names[ heading.id ] += 1;
+            heading.id = `${heading.id}-${heading_names[ heading.id ]}`
+        } else {
+            heading_names[ heading.id ] = 0;
+        }
+        heading.innerHTML += `<a href="#${heading.id}"><i class="fa-solid fa-link fa-fw"></i></a>`;
     };
+    console.log(heading_names);
     // 代码块复制事件
     document.addEventListener("click", function(event){
         if ( event.target.classList.contains( "copy-button" ) ){

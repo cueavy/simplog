@@ -7,6 +7,7 @@ import traceback
 import langful
 import mistune
 import typing
+import json
 import time
 import bs4
 import sys
@@ -96,6 +97,7 @@ class theme( lib.theme.theme ) :
         failed_page = failed_post = 0
         [ [ [ pages.append( ( os.path.join( "source" , "post" , year , path , name ) , True ) ) for name in os.listdir( os.path.join( "source" , "post" , year , path ) ) ] for path in os.listdir( os.path.join( "source" , "post" , year ) ) ] for year in os.listdir( os.path.join( "source" , "post" ) ) ]
         if len( pages ) : print( self.lang.replace( "build.info.pages" , { "all" : len( pages ) , "page" : len_page , "post" : len( pages ) - len_page } ) )
+        post_info : list[ dict[ str , typing.Any ] ] = []
         templates : dict[ str , str ] = {}
         for path , is_post in pages :
             try :
@@ -107,6 +109,8 @@ class theme( lib.theme.theme ) :
                     templates[ template_name ] = data
                 else : data = templates[ template_name ]
                 template = bs4.BeautifulSoup( data , "html.parser" )
+                # set info
+                if is_post : post_info.append( info )
                 # find element
                 div_post = template.find( "div" , id = "post" )
                 div_title = template.find( "div" , id = "title" )
@@ -141,6 +145,9 @@ class theme( lib.theme.theme ) :
                 if is_post : failed_post += 1
                 else : failed_page += 1
                 continue
+        lib.path.checkdir( os.path.dirname( path := os.path.join( output , "api" , "post.json" ) ) )
+        post_info.sort( key = lambda data : data[ "time" ] )
+        with open( path , "w" ) as fp : json.dump( post_info , fp )
         if failed_page + failed_post : print( self.lang.replace( "build.info.failed" , { "page" : failed_page , "post" : failed_post } ) )
         else : print( self.lang.get( "build.info.no_failed" ) )
         print( self.lang.get( "build.info.done" ) )

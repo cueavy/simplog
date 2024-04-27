@@ -12,8 +12,8 @@ body{
     flex-direction: column;
     align-content: center;
     align-items: center;
+    line-height: 16px;
     overflow: hidden;
-    line-height: 1px;
     flex-wrap: wrap;
     display: flex;
     height: 200px;
@@ -37,7 +37,7 @@ body{
     width: 100%;
 }
 #menu{
-    width: 200px;
+    width: 300px;
 }
 #post, #commit, #menu{
     box-shadow: 0 0 4px lightgrey;

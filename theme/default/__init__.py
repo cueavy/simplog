@@ -162,7 +162,7 @@ class theme( lib.theme.theme ) :
             page.set( "from" , name )
             page.set( "to" , os.path.join( "page" , info.get( "id" ) + ".html" ) )
 
-__version__ = version = "0.0.1"
+__version__ = version = "0.0.2"
 name = "Azure"
 description = "the default theme for simplog"
 requirement = os.path.join( os.path.dirname( __file__ ) , "requirements.txt" )

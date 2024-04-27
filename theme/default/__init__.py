@@ -95,6 +95,7 @@ class theme( lib.theme.theme ) :
         pages : list[ tuple[ str , bool ] ] = [ ( os.path.join( "source" , "page" , path ) , False ) for path in os.listdir( os.path.join( "source" , "page" ) ) ]
         len_page = len( pages )
         failed_page = failed_post = 0
+        [ lib.path.checkdir( os.path.join( "source" , path ) ) for path in ( "post" , "page" ) ]
         [ [ [ pages.append( ( os.path.join( "source" , "post" , year , path , name ) , True ) ) for name in os.listdir( os.path.join( "source" , "post" , year , path ) ) ] for path in os.listdir( os.path.join( "source" , "post" , year ) ) ] for year in os.listdir( os.path.join( "source" , "post" ) ) ]
         if len( pages ) : print( self.lang.replace( "build.info.pages" , { "all" : len( pages ) , "page" : len_page , "post" : len( pages ) - len_page } ) )
         post_info : list[ dict[ str , typing.Any ] ] = []

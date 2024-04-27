@@ -8,7 +8,6 @@ import langful
 import mistune
 import typing
 import time
-import copy
 import bs4
 import sys
 import os
@@ -151,6 +150,7 @@ class theme( lib.theme.theme ) :
         lib.path.checkfile( os.path.join( path , "index.md" ) )
         with self.set_config_info( path ) as info :
             info.set( "id" , lib.time.to_hex( seconds ) )
+            info.set( "time" , seconds )
             info.set( "title" , title )
 
     def page( self , path : str , title : str ) -> None :

@@ -7,6 +7,7 @@ import traceback
 import langful
 import mistune
 import typing
+import shutil
 import json
 import time
 import bs4
@@ -61,30 +62,30 @@ class theme( lib.theme.theme ) :
 
     def set_config_info( self , path : str , check_exist : bool = False ) -> lib.config.parser :
         with lib.config.parser( os.path.join( path , "info.json" ) , check_exist ) as config :
-            config.add( "id" , None )
-            config.add( "time" , None )
             config.add( "title" , None )
             config.add( "description" , None )
-            config.add( "tags" , [] )
-            config.add( "commint" , True )
+            config.add( "comment" , True )
         return config
 
     def set_config_page( self , path : str , check_exist : bool = False ) -> lib.config.parser :
         with lib.config.parser( os.path.join( path , "page.json" ) , check_exist ) as config :
+            config.add( "template" , "post" )
             config.add( "from" , None )
             config.add( "to" , None )
-            config.add( "template" , "post" )
         return config
 
     def to_html( self , text : str ) -> str :
         return str( self.markdown( text ) )
 
-    def load_page_info( self , path : str , post : bool = False ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
+    def load_post_info( self , path : str ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
         info = self.set_config_info( path , True ).data
-        if os.path.exists( os.path.join( path , "page.json" ) ) :
-            page = self.set_config_page( path , True ).data
-            return info , os.path.join( path , page[ "from" ] ) , page[ "to" ] , page[ "template" ]
-        return info , os.path.join( path , "index.md" ) , os.path.join( "post" if post else "page" , info[ "id" ] , "index.html" ) , "post"
+        if os.path.exists( os.path.join( path , "page.json" ) ) : page = self.set_config_page( path , True ).data
+        else : page = { "from" : "index.md" , "to" : os.path.join( "post" , info[ "id" ] , "index.html" ) , "template" : "post" }
+        return info , os.path.join( path , page[ "from" ] ) , page[ "to" ] , page[ "template" ]
+
+    def load_page_info( self , path : str , post : bool = False ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
+        page = self.set_config_page( path , True ).data
+        return self.set_config_info( path , True ).data , os.path.join( path , page[ "from" ] ) , page[ "to" ] , page[ "template" ]
 
     def build( self , output : str ) -> None :
         print( self.lang.get( "build.info.start" ) )
@@ -103,7 +104,7 @@ class theme( lib.theme.theme ) :
         for path , is_post in pages :
             try :
                 # get template
-                info , file , to , template_name = self.load_page_info( path , is_post )
+                info , file , to , template_name = ( self.load_page_info , self.load_post_info )[ is_post ]( path )
                 if template_name not in templates :
                     with open( os.path.join( "source" , "template" , template_name + ".html" ) , "r" , encoding = "utf-8" ) as fp :
                         data = fp.read()
@@ -137,9 +138,15 @@ class theme( lib.theme.theme ) :
                     if giscus is not None : div_commit.append( giscus )
                     else : div_commit.decompose()
                 # write file
-                to = os.path.join( output , to )
-                lib.path.checkdir( os.path.dirname( to ) )
+                lib.path.checkdir( os.path.dirname( to := os.path.join( output , to ) ) )
                 with open( to , "wb" ) as fp : fp.write( template.prettify( "utf-8" ) )
+                # copy files
+                if is_post and isinstance( info[ "files" ] , list ) :
+                    for file in info[ "files" ] :
+                        if not os.path.exists( file := os.path.join( path , file ) ) : continue
+                        dst = os.path.join( output , "post" , info[ "id" ] , os.path.split( file )[ -1 ] )
+                        if os.path.isfile( file ) : shutil.copyfile( file , dst )
+                        else : lib.path.copytree( file , dst )
             except :
                 traceback.print_exc()
                 print( self.lang.get( "build.error.failed.conversion" ) )
@@ -160,6 +167,8 @@ class theme( lib.theme.theme ) :
             info.set( "id" , lib.time.to_hex( seconds ) )
             info.set( "time" , int( seconds ) )
             info.set( "title" , title )
+            info.set( "tags" , [] )
+            info.add( "files" , [] )
 
     def page( self , path : str , title : str ) -> None :
         name = title + ".md"

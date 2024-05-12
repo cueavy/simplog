@@ -3,7 +3,7 @@ import types
 import abc
 import os
 
-__all__ = [ "theme_load" ]
+__all__ = [ "theme_load" , "theme" ]
 
 def theme_load( path : str , name : str | None = None ) -> types.ModuleType :
     if name is None : name = os.path.split( path )[ -1 ]
@@ -21,6 +21,7 @@ class theme :
         theme class init
         """
         self.path : str = os.getcwd() if path is None else path
+        self.path_source : str = os.path.join( self.path , "source" )
 
     @abc.abstractmethod
     def init( self ) -> None :

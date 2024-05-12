@@ -17,7 +17,7 @@ import lib.config
 import lib.theme
 import lib.path
 
-__all__ = [ "load_config" , "ArgumentParser" ]
+__all__ = [ "load_config" ]
 
 home = os.path.dirname( __file__ )
 
@@ -28,32 +28,24 @@ def load_config( check_exist : bool = True ) -> lib.config.parser :
         config.add( "blacklist" , [ ".git" ] )
     return config
 
-class ArgumentParser( argparse.ArgumentParser ) :
-
-    def __init__( self , prog : str , description : str , help : str , lang : langful.langful , **kwargs : typing.Any ) -> None :
-        super().__init__( lang.get( prog ) , description = lang.get( description ) , add_help = False , **kwargs )
-        self.add_argument( "-h" , "--help" , action = "help" , help = lang.get( help ) )
-        self.lang = lang
-
 if __name__ == "__main__" :
     lang = langful.langful( os.path.join( home , "lang" ) )
-    parser = ArgumentParser( "parser.name", "parser.description" , "help.help" , lang )
-    parser.add_argument( "-i" , "--init" , required = False , action = "store_true" , help = lang.get( "help.init" ) )
-    parser.add_argument( "-f" , "--force" , required = False , action = "store_true" , help = lang.get( "help.force" ) )
-    parser.add_argument( "-t" , "--theme" , required = False , default = "default" , help = lang.get( "help.theme" ) )
-    parser.add_argument( "-l" , "--list" , required = False , action = "store_true" , help = lang.get( "help.theme.list" ) )
-    parser.add_argument( "-s" , "--server" , required = False , action = "store_true" , help = lang.get( "help.server" ) )
-    parser.add_argument( "-p" , "--port" , required = False , default = 7000 , type = int , help = lang.get( "help.server.port" ) )
-    parser.add_argument( "-c" , "--clear" , required = False , action = "store_true" , help = lang.get( "help.clear" ) )
-    parser.add_argument( "-b" , "--build" , required = False , action = "store_true" , help = lang.get( "help.build" ) )
-    parser.add_argument( "--post" , required = False , default = None , type = str , help = lang.get( "help.post" ) )
-    parser.add_argument( "--page" , required = False , default = None , type = str , help = lang.get( "help.page" ) )
+    parser = argparse.ArgumentParser( lang.get( "parser.name" ) , description = lang.get( "parser.description" ) , add_help = False )
+    parser.add_argument( "-h" , "--help" , action = "help" , help = lang.get( "help.help" ) )
+    parser.add_argument( "-i" , "--init" , action = "store_true" , help = lang.get( "help.init" ) )
+    parser.add_argument( "-t" , "--theme" ,  default = "default" , help = lang.get( "help.theme" ) )
+    parser.add_argument( "-l" , "--list" , action = "store_true" , help = lang.get( "help.theme.list" ) )
+    parser.add_argument( "-s" , "--server" , action = "store_true" , help = lang.get( "help.server" ) )
+    parser.add_argument( "-p" , "--port" ,  default = 7000 , type = int , help = lang.get( "help.server.port" ) )
+    parser.add_argument( "-c" , "--clear" , action = "store_true" , help = lang.get( "help.clear" ) )
+    parser.add_argument( "-b" , "--build" , action = "store_true" , help = lang.get( "help.build" ) )
+    parser.add_argument( "--post" ,  default = None , type = str , help = lang.get( "help.post" ) )
+    parser.add_argument( "--page" ,  default = None , type = str , help = lang.get( "help.page" ) )
     args = parser.parse_args()
     # init
     if args.init :
         # load theme
         theme_name = args.theme
-        force = args.force
         if not os.path.isdir( path := os.path.join( home , "theme" , theme_name ) ) :
             print( lang.get( "theme.error.not_exist" ) )
             exit()
@@ -64,21 +56,16 @@ if __name__ == "__main__" :
             print( lang.get( "theme.error.load_failed" ) )
             exit()
         print( lang.replace( "init.theme" , { "name" : theme_name } ) )
-        # create and copy files
-        if os.path.isdir( "source" ) :
-            if len( os.listdir( "source" ) ) :
-                if force :
-                    print( lang.get( "init.info.force" ) )
-                else :
-                    print( lang.get( "init.error.source_exist" ) )
-                    exit()
-            else :
-                os.rmdir( "source" )
-        if os.path.isdir( path := os.path.join( os.path.dirname( str( theme.__file__ ) ) , "source" ) ) : shutil.copytree( path , "source" , dirs_exist_ok = True if force else False )
-        else : print( lang.get( "init.warning.theme_no_source_dir" ) )
-        [ os.makedirs( path ) for path in ( os.path.join( "source" , path ) for path in ( "asset" , "config" , "post" , "page" , "template" ) ) if not os.path.exists( path ) ]
-        # config
+        # prepare environment
+        if os.path.exists( "source" ) and len( os.listdir( "source" ) ) :
+            print( lang.get( "init.error.source_exist" ) )
+            exit()
+        if os.path.exists( path := os.path.join( os.path.dirname( str( theme.__file__ ) ) , "source" ) ) :
+            print( lang.get( "init.info.copy_source" ) )
+            shutil.copytree( path , "source" , dirs_exist_ok = True )
+        if not os.path.exists( "source" ) : os.mkdir( "source" )
         with load_config( False ) as config : config.set( "theme" , theme_name )
+        [ os.mkdir( path ) for path in ( os.path.join( "source" , path ) for path in ( "asset" , "config" , "post" , "page" , "template" ) ) if not os.path.exists( path ) ]
         # install requirement
         if hasattr( theme , "requirement" ) :
             print( lang.get( "init.requirement.start" ) )
@@ -87,6 +74,7 @@ if __name__ == "__main__" :
         # theme init
         theme_main : lib.theme.theme = theme.theme_class()
         theme_main.init()
+        # done
         print( lang.get( "init.done" ) )
         exit()
     # list
@@ -125,15 +113,15 @@ if __name__ == "__main__" :
             print( f"http://localhost{ f':{ port if port != 80 else '' }' }" )
             thread = threading.Thread( target = lambda : httpd.serve_forever() , daemon = True )
             thread.start()
-            try : 
-                while thread.is_alive() : thread.join( 0.1 )
+            try :
+                while thread.is_alive() : thread.join( 1 )
             except KeyboardInterrupt :
                 pass
         exit()
     # clear
     if args.clear or args.build :
         lib.path.rmtree( output_path , config.get( "blacklist" ) )
-        if not args.build : exit()
+        if args.clear : exit()
     # load theme
     theme_name = config.get( "theme" )
     try :
@@ -173,3 +161,6 @@ if __name__ == "__main__" :
             exit()
         theme_class.page( path , title )
         exit()
+    # no argument
+    parser.print_help()
+    exit()

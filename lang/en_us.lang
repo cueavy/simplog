@@ -3,7 +3,6 @@ parser.description = a simple blog frame
 
 help.help = show this help message and exit
 help.init = init the blog frame
-help.force = force to init
 help.theme = the theme you need when init
 help.theme.list = list all the themes that can be used
 help.clear = clear up
@@ -19,7 +18,7 @@ theme.error.load_failed = failed to load the theme
 init.theme = start to use `{name}` theme to init...
 init.info.force = `source` directory already exist and not empty, force continue...
 init.error.source_exist = `source` directory already exist and not empty
-init.warning.theme_no_source_dir = warning: this theme not have `source` directory, it's usually in need, if this theme says don't need this file, just ignore this warning, the initialization will continue...
+init.info.copy_source = find `source` directory in this theme, copy...
 init.requirement.start = find requirements, start to installing packages...
 init.requirement.done = packages installing completed
 init.done = initialization successful

@@ -2,7 +2,7 @@ import shutil
 import re
 import os
 
-__all__ = [ "checkdir" , "checkfile" , "copytree" , "formatname" ]
+__all__ = [ "checkdir" , "checkfile" , "copytree" , "rmtree" , "formatname" ]
 
 def checkdir( path : str ) -> None :
     if not os.path.exists( path ) : os.makedirs( path )
@@ -16,9 +16,8 @@ def checkfile( path : str ) -> None :
 
 def copytree( src : str , dst : str ) -> None :
     for root , dirs , files in os.walk( src ) :
-        to = os.path.relpath( root , os.path.commonpath( ( src , root ) ) )
         [ checkdir( os.path.join( dst , p ) ) for p in dirs ]
-        path = os.path.join( dst , to )
+        path = os.path.join( dst , os.path.relpath( root , os.path.commonpath( ( src , root ) ) ) )
         checkdir( path )
         [ shutil.copyfile( os.path.join( root , file ) , os.path.join( path , file ) ) for file in files ]
 

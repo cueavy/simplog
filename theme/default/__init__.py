@@ -43,19 +43,15 @@ class HTMLRenderer( mistune.HTMLRenderer ) :
 
 class theme( lib.theme.theme ) :
 
-    def __init__( self , path: str | None = None ) -> None :
-        super().__init__( path )
-        self.path_source = os.path.join( self.path , "source" )
-
     def init( self ) -> None :
-        self.set_config()
+        self.set_config_theme()
 
     def main( self ) -> None :
         self.lang = langful.langful( os.path.join( os.path.dirname( __file__ ) , "lang" ) )
-        self.config = self.set_config()
+        self.config = self.set_config_theme()
         self.markdown = mistune.Markdown( HTMLRenderer( False ) , plugins = [ mistune.plugins.import_plugin( plugin ) for plugin in self.config.get( "mistune_plugins" ) ] )
 
-    def set_config( self ) -> lib.config.parser :
+    def set_config_theme( self ) -> lib.config.parser :
         with lib.config.parser( os.path.join( self.path_source , "config" , "theme.json" ) , check_exist = False ) as config :
             config.add( "giscus" , {
                 "src" : "https://giscus.app/client.js"
@@ -91,13 +87,13 @@ class theme( lib.theme.theme ) :
     def to_html( self , text : str ) -> str :
         return str( self.markdown( text ) )
 
-    def load_post_info( self , path : str ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
+    def load_info_post( self , path : str ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
         info = self.set_config_info( path , True ).data
         if os.path.exists( os.path.join( path , "page.json" ) ) : page = self.set_config_page( path , True ).data
         else : page = { "from" : "index.md" , "to" : os.path.join( "post" , info[ "id" ] , "index.html" ) , "template" : "post" }
         return info , os.path.join( path , page[ "from" ] ) , page[ "to" ] , page[ "template" ]
 
-    def load_page_info( self , path : str , post : bool = False ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
+    def load_info_page( self , path : str , post : bool = False ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
         page = self.set_config_page( path , True ).data
         return self.set_config_info( path , True ).data , os.path.join( path , page[ "from" ] ) , page[ "to" ] , page[ "template" ]
 
@@ -107,20 +103,20 @@ class theme( lib.theme.theme ) :
         if isinstance( giscus_args , dict ) : giscus_args[ "async" ] = None
         else : giscus_args = None
         giscus : bs4.element.Tag | None = None if giscus_args is None else bs4.BeautifulSoup().new_tag( "script" , **giscus_args )
-        pages : list[ tuple[ str , bool ] ] = [ ( os.path.join( "source" , "page" , path ) , False ) for path in os.listdir( os.path.join( "source" , "page" ) ) ]
+        pages : list[ tuple[ str , bool ] ] = [ ( os.path.join( self.path_source , "page" , path ) , False ) for path in os.listdir( os.path.join( self.path_source , "page" ) ) ]
         len_page = len( pages )
         failed_page = failed_post = 0
-        [ lib.path.checkdir( os.path.join( "source" , path ) ) for path in ( "post" , "page" ) ]
-        [ [ [ pages.append( ( os.path.join( "source" , "post" , year , path , name ) , True ) ) for name in os.listdir( os.path.join( "source" , "post" , year , path ) ) ] for path in os.listdir( os.path.join( "source" , "post" , year ) ) ] for year in os.listdir( os.path.join( "source" , "post" ) ) ]
+        [ lib.path.checkdir( os.path.join( self.path_source , path ) ) for path in ( "post" , "page" ) ]
+        [ [ [ pages.append( ( os.path.join( self.path_source , "post" , year , path , name ) , True ) ) for name in os.listdir( os.path.join( self.path_source , "post" , year , path ) ) ] for path in os.listdir( os.path.join( self.path_source , "post" , year ) ) ] for year in os.listdir( os.path.join( self.path_source , "post" ) ) ]
         if len( pages ) : print( self.lang.replace( "build.info.pages" , { "all" : len( pages ) , "page" : len_page , "post" : len( pages ) - len_page } ) )
         post_info : list[ dict[ str , typing.Any ] ] = []
         templates : dict[ str , str ] = {}
         for path , is_post in pages :
             try :
                 # get template
-                info , file , to , template_name = ( self.load_page_info , self.load_post_info )[ is_post ]( path )
+                info , file , to , template_name = ( self.load_info_page , self.load_info_post )[ is_post ]( path )
                 if template_name not in templates :
-                    with open( os.path.join( "source" , "template" , template_name + ".html" ) , "r" , encoding = "utf-8" ) as fp :
+                    with open( os.path.join( self.path_source , "template" , template_name + ".html" ) , "r" , encoding = "utf-8" ) as fp :
                         data = fp.read()
                     templates[ template_name ] = data
                 else : data = templates[ template_name ]
@@ -187,7 +183,7 @@ class theme( lib.theme.theme ) :
     def page( self , path : str , title : str ) -> None :
         name = title + ".md"
         lib.path.checkfile( os.path.join( path , name ) )
-        with  self.set_config_info( path ) as info :
+        with self.set_config_info( path ) as info :
             info.set( "title" , title )
         with self.set_config_page( path ) as page :
             page.set( "from" , name )

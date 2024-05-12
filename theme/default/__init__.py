@@ -164,7 +164,7 @@ class theme( lib.theme.theme ) :
                 else : failed_page += 1
                 continue
         lib.path.checkdir( os.path.dirname( path := os.path.join( output , "api" , "post.json" ) ) )
-        post_info.sort( key = lambda data : data[ "time" ] )
+        post_info.sort( key = lambda data : data[ "time" ] , reverse = True )
         with open( path , "w" ) as fp : json.dump( post_info , fp )
         if failed_page + failed_post : print( self.lang.replace( "build.info.failed" , { "page" : failed_page , "post" : failed_post } ) )
         else : print( self.lang.get( "build.info.no_failed" ) )

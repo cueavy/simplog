@@ -2,30 +2,44 @@
 the default theme for simplog
 """
 
-import mistune.plugins
 import traceback
-import langful
-import mistune
 import typing
 import shutil
 import json
 import time
-import bs4
-import sys
 import os
+
+import pygments.formatters
+import pygments.lexers
+
+import mistune.plugins
+import mistune
+
+import langful
+import bs4
 
 import lib.config
 import lib.theme
 import lib.path
 import lib.time
 
-sys.path.insert( 0 , os.path.dirname( __file__ ) )
+__all__ = [ "HTMLRenderer" , "theme" , "version" , "description" ]
 
-import renderer
+class HTMLRenderer( mistune.HTMLRenderer ) :
 
-sys.path.pop( 0 )
+    def block_code( self, code : str , info : str | None = None ) -> str :
+        try :
+            if info == "mermaid" : return f"\n<pre class=\"mermaid\">{ code }</pre>"
+            elif isinstance( info , str ) :
+                lexer = pygments.lexers.get_lexer_by_name( info )
+                formatter = pygments.formatters.HtmlFormatter()
+                return pygments.highlight( code , lexer , formatter )
+        except :
+            traceback.print_exc()
+        return f"\n<div class=\"highlight\"><pre>{ code }</pre></div>"
 
-__all__ = [ "theme" , "version" , "description" ]
+    def heading( self , text : str , level : int , **_ ) -> str :
+        return f"<h{ level } class=\"heading\">{ text }</h{ level }>"
 
 class theme( lib.theme.theme ) :
 
@@ -39,7 +53,7 @@ class theme( lib.theme.theme ) :
     def main( self ) -> None :
         self.lang = langful.langful( os.path.join( os.path.dirname( __file__ ) , "lang" ) )
         self.config = self.set_config()
-        self.markdown = mistune.Markdown( renderer.HTMLRenderer( False ) , plugins = [ mistune.plugins.import_plugin( plugin ) for plugin in self.config.get( "mistune_plugins" ) ] )
+        self.markdown = mistune.Markdown( HTMLRenderer( False ) , plugins = [ mistune.plugins.import_plugin( plugin ) for plugin in self.config.get( "mistune_plugins" ) ] )
 
     def set_config( self ) -> lib.config.parser :
         with lib.config.parser( os.path.join( self.path_source , "config" , "theme.json" ) , check_exist = False ) as config :
@@ -179,7 +193,8 @@ class theme( lib.theme.theme ) :
             page.set( "from" , name )
             page.set( "to" , os.path.join( "page" , info.get( "id" ) + ".html" ) )
 
-__version__ = version = "0.0.2"
 name = "Azure"
+theme_class = theme
+version = __version__ = "0.0.2"
 description = "the default theme for simplog"
 requirement = os.path.join( os.path.dirname( __file__ ) , "requirements.txt" )

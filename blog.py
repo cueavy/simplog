@@ -3,7 +3,6 @@ import subprocess
 import threading
 import traceback
 import argparse
-import langful
 import shutil
 import typing
 import types
@@ -12,11 +11,13 @@ import time
 import sys
 import os
 
+import langful
+
 import lib.config
 import lib.theme
 import lib.path
 
-__all__ = [ "ArgumentParser" ]
+__all__ = [ "load_config" , "ArgumentParser" ]
 
 home = os.path.dirname( __file__ )
 
@@ -84,7 +85,7 @@ if __name__ == "__main__" :
             subprocess.check_call( [ sys.executable , "-m" , "pip" , "install" , "-r" , theme.requirement ] )
             print( lang.get( "init.requirement.done" ) )
         # theme init
-        theme_main : lib.theme.theme = theme.theme()
+        theme_main : lib.theme.theme = theme.theme_class()
         theme_main.init()
         print( lang.get( "init.done" ) )
         exit()
@@ -137,7 +138,7 @@ if __name__ == "__main__" :
     theme_name = config.get( "theme" )
     try :
         theme : types.ModuleType = lib.theme.theme_load( os.path.join( home , "theme" , theme_name ) )
-        theme_class : lib.theme.theme = theme.theme()
+        theme_class : lib.theme.theme = theme.theme_class()
     except :
         traceback.print_exc()
         print( lang.get( "theme.error.load_failed" ) )

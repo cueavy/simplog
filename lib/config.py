@@ -29,7 +29,8 @@ class parser :
         if key not in self.data : self.set( key , default )
 
     def add_all( self , data : dict[ str , typing.Any ] ) -> None :
-        for key , default in data.items() : self.add( key , default )
+        for key , default in data.items() :
+            self.add( key , default )
 
     def set( self , key : str , value : typing.Any ) -> None:
         self.data[ key ] = value
@@ -38,4 +39,5 @@ class parser :
         return self.data[ key ]
 
     def dump( self ) -> None :
-        with open( self.path , "w" , encoding = "utf-8" ) as fp : json.dump( self.data , fp , ensure_ascii = False , indent = 4 )
+        with open( self.path , "w" , encoding = "utf-8" ) as fp :
+            json.dump( self.data , fp , ensure_ascii = False , indent = 4 )

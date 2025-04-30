@@ -29,7 +29,8 @@ class HTMLRenderer( mistune.HTMLRenderer ) :
 
     def block_code( self, code : str , info : str | None = None ) -> str :
         try :
-            if info == "mermaid" : return f"\n<pre class=\"mermaid\">{ code }</pre>"
+            if info == "mermaid" :
+                return f"\n<pre class=\"mermaid\">{ code }</pre>"
             elif isinstance( info , str ) :
                 lexer = pygments.lexers.get_lexer_by_name( info )
                 formatter = pygments.formatters.HtmlFormatter()
@@ -89,8 +90,10 @@ class theme( lib.theme.theme ) :
 
     def load_info_post( self , path : str ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
         info = self.set_config_info( path , True ).data
-        if os.path.exists( os.path.join( path , "page.json" ) ) : page = self.set_config_page( path , True ).data
-        else : page = { "from" : "index.md" , "to" : os.path.join( "post" , info[ "id" ] , "index.html" ) , "template" : "post" }
+        if os.path.exists( os.path.join( path , "page.json" ) ) :
+            page = self.set_config_page( path , True ).data
+        else :
+            page = { "from" : "index.md" , "to" : os.path.join( "post" , info[ "id" ] , "index.html" ) , "template" : "post" }
         return info , os.path.join( path , page[ "from" ] ) , page[ "to" ] , page[ "template" ]
 
     def load_info_page( self , path : str , post : bool = False ) -> tuple[ dict[ str , typing.Any ] , str , str , str ] :
@@ -100,15 +103,18 @@ class theme( lib.theme.theme ) :
     def build( self , output : str ) -> None :
         print( self.lang.get( "build.info.start" ) )
         giscus_args = self.config.get( "giscus" )
-        if isinstance( giscus_args , dict ) : giscus_args[ "async" ] = None
-        else : giscus_args = None
+        if isinstance( giscus_args , dict ) :
+            giscus_args[ "async" ] = None
+        else :
+            giscus_args = None
         giscus : bs4.element.Tag | None = None if giscus_args is None else bs4.BeautifulSoup().new_tag( "script" , **giscus_args )
         pages : list[ tuple[ str , bool ] ] = [ ( os.path.join( self.path_source , "page" , path ) , False ) for path in os.listdir( os.path.join( self.path_source , "page" ) ) ]
         len_page = len( pages )
         failed_page = failed_post = 0
         [ lib.path.checkdir( os.path.join( self.path_source , path ) ) for path in ( "post" , "page" ) ]
         [ [ [ pages.append( ( os.path.join( self.path_source , "post" , year , path , name ) , True ) ) for name in os.listdir( os.path.join( self.path_source , "post" , year , path ) ) ] for path in os.listdir( os.path.join( self.path_source , "post" , year ) ) ] for year in os.listdir( os.path.join( self.path_source , "post" ) ) ]
-        if len( pages ) : print( self.lang.replace( "build.info.pages" , { "all" : len( pages ) , "page" : len_page , "post" : len( pages ) - len_page } ) )
+        if len( pages ) :
+            print( self.lang.replace( "build.info.pages" , { "all" : len( pages ) , "page" : len_page , "post" : len( pages ) - len_page } ) )
         post_info : list[ dict[ str , typing.Any ] ] = []
         templates : dict[ str , str ] = {}
         for path , is_post in pages :
@@ -119,10 +125,12 @@ class theme( lib.theme.theme ) :
                     with open( os.path.join( self.path_source , "template" , template_name + ".html" ) , "r" , encoding = "utf-8" ) as fp :
                         data = fp.read()
                     templates[ template_name ] = data
-                else : data = templates[ template_name ]
+                else :
+                    data = templates[ template_name ]
                 template = bs4.BeautifulSoup( data , "html.parser" )
                 # set info
-                if is_post : post_info.append( info )
+                if is_post :
+                    post_info.append( info )
                 # find element
                 div_post = template.find( "div" , id = "post" )
                 div_title = template.find( "div" , id = "title" )
@@ -142,32 +150,44 @@ class theme( lib.theme.theme ) :
                         p.string = description
                         div_title.append( p )
                 if isinstance( div_post , bs4.element.Tag ) :
-                    with open( file , "r" , encoding = "utf-8" ) as fp : div_post.append( bs4.BeautifulSoup( self.to_html( fp.read() ) , "html.parser" ) )
+                    with open( file , "r" , encoding = "utf-8" ) as fp :
+                        div_post.append( bs4.BeautifulSoup( self.to_html( fp.read() ) , "html.parser" ) )
                 # giscus
                 if isinstance( div_commit , bs4.element.Tag ) :
-                    if giscus is not None : div_commit.append( giscus )
-                    else : div_commit.decompose()
+                    if giscus is not None :
+                        div_commit.append( giscus )
+                    else :
+                        div_commit.decompose()
                 # write file
                 lib.path.checkdir( os.path.dirname( to := os.path.join( output , to ) ) )
-                with open( to , "wb" ) as fp : fp.write( template.prettify( "utf-8" ) )
+                with open( to , "wb" ) as fp :
+                    fp.write( template.prettify( "utf-8" ) )
                 # copy files
                 if is_post and isinstance( info[ "files" ] , list ) :
                     for file in info[ "files" ] :
-                        if not os.path.exists( file := os.path.join( path , file ) ) : continue
+                        if not os.path.exists( file := os.path.join( path , file ) ) :
+                            continue
                         dst = os.path.join( output , "post" , info[ "id" ] , os.path.split( file )[ -1 ] )
-                        if os.path.isfile( file ) : shutil.copyfile( file , dst )
-                        else : lib.path.copytree( file , dst )
+                        if os.path.isfile( file ) :
+                            shutil.copyfile( file , dst )
+                        else :
+                            lib.path.copytree( file , dst )
             except :
                 traceback.print_exc()
                 print( self.lang.get( "build.error.failed.conversion" ) )
-                if is_post : failed_post += 1
-                else : failed_page += 1
+                if is_post :
+                    failed_post += 1
+                else :
+                    failed_page += 1
                 continue
         lib.path.checkdir( os.path.dirname( path := os.path.join( output , "api" , "post.json" ) ) )
         post_info.sort( key = lambda data : data[ "time" ] , reverse = True )
-        with open( path , "w" ) as fp : json.dump( post_info , fp )
-        if failed_page + failed_post : print( self.lang.replace( "build.info.failed" , { "page" : failed_page , "post" : failed_post } ) )
-        else : print( self.lang.get( "build.info.no_failed" ) )
+        with open( path , "w" ) as fp :
+            json.dump( post_info , fp )
+        if failed_page + failed_post :
+            print( self.lang.replace( "build.info.failed" , { "page" : failed_page , "post" : failed_post } ) )
+        else :
+            print( self.lang.get( "build.info.no_failed" ) )
         print( self.lang.get( "build.info.done" ) )
 
     def post( self , path : str , title : str ) -> None :

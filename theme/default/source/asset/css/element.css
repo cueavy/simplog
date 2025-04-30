@@ -57,9 +57,9 @@ p{
 #post blockquote{
     border-left: 3px solid #c4c7ce;
     background-color: #EDEDED;
+    padding-inline: 16px;
     border-radius: 3px;
-    padding-right: 6px;
-    padding-left: 6px;
+    margin: 0px;
 }
 .copy-button{
     background-color: transparent;
